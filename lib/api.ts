@@ -16,16 +16,20 @@ interface FetchNotesParams {
 
 export interface CreateNoteParams {
   title: string;
-  content: string;
+  content?: string;
   tag: string;
 }
 
-// --- Axios інстанс ---
 const BASE_URL = "https://notehub-public.goit.study/api/notes";
+
 const TOKEN = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
 
 if (!TOKEN) {
-  throw new Error("NEXT_PUBLIC_NOTEHUB_TOKEN is not defined in environment variables");
+  if (process.env.NODE_ENV !== "production") {
+    throw new Error("❌ NEXT_PUBLIC_NOTEHUB_TOKEN is not defined in environment variables");
+  } else {
+    console.warn("⚠️ Warning: NoteHub token is missing — requests may fail.");
+  }
 }
 
 const noteServiceClient = axios.create({
@@ -35,14 +39,13 @@ const noteServiceClient = axios.create({
   },
 });
 
-// --- API-функції ---
 
-// 1. Отримати список нотаток з фільтрами
 export async function fetchNotes({ search, page = 1, tag }: FetchNotesParams) {
   const params: FetchNotesParams = {
     page,
     perPage: NOTES_PER_PAGE,
   };
+
   if (search) params.search = search;
   if (tag && tag !== 'All') params.tag = tag;
 
@@ -50,13 +53,11 @@ export async function fetchNotes({ search, page = 1, tag }: FetchNotesParams) {
   return response.data;
 }
 
-// 2. Отримати одну нотатку за ID
 export async function fetchNoteById(id: number) {
   const response = await noteServiceClient.get<Note>(`/${id}`);
   return response.data;
 }
 
-// 3. Створити нову нотатку
 export async function createNote({ title, content = "", tag }: CreateNoteParams) {
   const response = await noteServiceClient.post<Note>("/", {
     title,
@@ -66,7 +67,6 @@ export async function createNote({ title, content = "", tag }: CreateNoteParams)
   return response.data;
 }
 
-// 4. Видалити нотатку
 export async function deleteNote(id: number) {
   const response = await noteServiceClient.delete<Note>(`/${id}`);
   return response.data;

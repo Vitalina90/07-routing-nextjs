@@ -23,8 +23,9 @@ interface NotesClientProps {
 export default function NotesClient({ initialData, tag }: NotesClientProps) {
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
+  const [isModal, setIsModal] = useState(false);
   const [debouncedQuery] = useDebounce(query, 400);
-
+  
   useEffect(() => {
     setPage(1);
   }, [debouncedQuery, tag]);
@@ -36,8 +37,7 @@ export default function NotesClient({ initialData, tag }: NotesClientProps) {
     refetchOnMount: false,
     initialData,
   });
-  const [isModal, setIsModal] = useState(false);
-
+  
   const handleCreateNote = () => {
     setIsModal(true);
   };
@@ -49,10 +49,12 @@ export default function NotesClient({ initialData, tag }: NotesClientProps) {
     <>
       <div className={css.app}>
         <header className={css.toolbar}>
+
           <SearchBox
             value={query}
             onChange={(query: string) => setQuery(query)}
           />
+
           {isSuccess && data.totalPages > 1 && (
             <Pagination
               pageCount={data.totalPages}
@@ -60,21 +62,29 @@ export default function NotesClient({ initialData, tag }: NotesClientProps) {
               onPageChange={(selectedPage: number) => setPage(selectedPage)}
             />
           )}
+
           <button onClick={handleCreateNote} className={css.button}>
             Create note +
           </button>
+
         </header>
+
         {isModal && (
           <Modal onClose={closeModal}>
             <NoteForm onClose={closeModal} />
           </Modal>
         )}
+
         {(isLoading || isFetching) && <Loader />}
+
         {isError && <ErrorMessage />}
+
         {isSuccess && data?.notes?.length === 0 && <p>No notes found.</p>}
+
         {data?.notes && data?.notes?.length > 0 && (
           <NoteList notes={data.notes} />
         )}
+
       </div>
     </>
   );

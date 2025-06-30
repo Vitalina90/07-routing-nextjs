@@ -7,7 +7,7 @@ import { fetchNoteById } from "@/lib/api";
 import Modal from "@/components/Modal/Modal";
 import css from "./NotePreview.module.css";
 
-type NoteDetailsClientProps = { id: string };
+type NoteDetailsClientProps = { id: string | number };
 
 export default function NoteDetailsClient({ id }: NoteDetailsClientProps) {
   const router = useRouter();
@@ -36,10 +36,19 @@ export default function NoteDetailsClient({ id }: NoteDetailsClientProps) {
           <button onClick={handleClose} className={css.backBtn}>
             Go Back
           </button>
+
           <div className={css.header}>
             <h2>{note?.title}</h2>
           </div>
+
           <p className={css.content}>{note.content}</p>
+
+          {note.tag && (
+            <p className={css.tag}>
+              <strong>Tag:</strong> {note.tag}
+            </p>
+          )}
+
           <p className={css.date}>
             {note.updatedAt === note.createdAt
               ? `Created at: ${new Date(note.createdAt).toLocaleString(
